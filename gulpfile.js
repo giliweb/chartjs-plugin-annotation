@@ -47,7 +47,7 @@ function buildTask() {
     .pipe(streamify(replace('{{ version }}', package.version)))
     .pipe(gulp.dest(outDir))
     .pipe(streamify(uglify({
-      preserveComments: 'some'
+
     })))
     .pipe(streamify(concat('chartjs-plugin-annotation.min.js')))
     .pipe(gulp.dest(outDir));

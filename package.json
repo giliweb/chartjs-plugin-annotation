@@ -1,5 +1,5 @@
 {
-  "name": "chartjs-plugin-annotation",
+  "name": "@giliweb/chartjs-plugin-annotation",
   "description": "Annotations for Chart.js",
   "version": "0.5.7",
   "author": "Evert Timberg <evert.timberg@gmail.com>",
