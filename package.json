@@ -1,7 +1,7 @@
 {
   "name": "@giliweb/chartjs-plugin-annotation",
   "description": "Annotations for Chart.js",
-  "version": "0.5.9",
+  "version": "0.6.0",
   "author": "Evert Timberg <evert.timberg@gmail.com>",
   "license": "MIT",
   "main": "src/index.js",
