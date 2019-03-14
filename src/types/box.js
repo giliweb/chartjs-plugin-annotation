@@ -93,6 +93,7 @@ module.exports = function(Chart) {
 			model.borderWidth = options.borderWidth;
 			model.backgroundColor = options.backgroundColor;
 			model.lineDash = options.lineDash ? options.lineDash : []
+			model.data = options.data ? options.data : null
 		},
 		inRange: function(mouseX, mouseY) {
 			var model = this._model;
