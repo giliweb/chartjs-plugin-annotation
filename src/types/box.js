@@ -92,6 +92,7 @@ module.exports = function(Chart) {
 			model.borderColor = options.borderColor;
 			model.borderWidth = options.borderWidth;
 			model.backgroundColor = options.backgroundColor;
+			model.lineDash = options.lineDash ? options.lineDash : []
 		},
 		inRange: function(mouseX, mouseY) {
 			var model = this._model;
@@ -133,6 +134,7 @@ module.exports = function(Chart) {
 			ctx.lineWidth = view.borderWidth;
 			ctx.strokeStyle = view.borderColor;
 			ctx.fillStyle = view.backgroundColor;
+			ctx.setLineDash(view.lineDash)
 
 			// Draw
 			var width = view.right - view.left;
