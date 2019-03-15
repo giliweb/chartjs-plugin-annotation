@@ -154,7 +154,7 @@ module.exports = function(Chart) {
 			model.borderDashOffset = options.borderDashOffset || 0;
 			model.mirror = options.mirror || false
 			model.align = options.align || 'left'
-			model.padding = options.padding * (model.align === 'left' ? -1 : 1) || 0
+			model.padding = options.padding ? options.padding * (model.align === 'left' ? -1 : 1) : 0
 
 
 			model.clip = {
@@ -175,7 +175,6 @@ module.exports = function(Chart) {
 				model.x1 = pixel + model.padding;
 				model.x2 = endPixel + model.padding;
 			}
-
 		},
 		inRange: function(mouseX, mouseY) {
 			var model = this._model;
@@ -220,54 +219,106 @@ module.exports = function(Chart) {
 
 
 
-			if(view.align === 'left'){
-				ctx.save();
-				// Canvas setup
-				ctx.beginPath();
-				ctx.rect(view.clip.x1 - 11, view.clip.y1, 10, view.clip.y2 - view.clip.y1);
-				ctx.clip();
+			if (this.options.mode === horizontalKeyword){
+				if(view.align === 'left'){
+					ctx.save();
+					// Canvas setup
+					ctx.beginPath();
+					ctx.rect(view.clip.x1 - 11, view.clip.y1, 10, view.clip.y2 - view.clip.y1);
+					ctx.clip();
 
-				ctx.lineWidth = view.borderWidth;
-				ctx.strokeStyle = view.borderColor;
+					ctx.lineWidth = view.borderWidth;
+					ctx.strokeStyle = view.borderColor;
 
-				if (ctx.setLineDash) {
-					ctx.setLineDash(view.borderDash);
+					if (ctx.setLineDash) {
+						ctx.setLineDash(view.borderDash);
+					}
+					ctx.lineDashOffset = view.borderDashOffset;
+
+					// Draw
+					ctx.beginPath();
+					ctx.fillStyle = view.backgroundColor
+					ctx.moveTo(view.x1 - 1, view.y1);
+					ctx.lineTo(view.x1 - 11, view.y1 - 10);
+					ctx.lineTo(view.x1 - 11, view.y1 + 10);
+					ctx.lineTo(view.x1 , view.y1 );
+					ctx.fill();
+					ctx.restore();
 				}
-				ctx.lineDashOffset = view.borderDashOffset;
 
-				// Draw
-				ctx.beginPath();
-				ctx.fillStyle = view.backgroundColor
-				ctx.moveTo(view.x1 - 1, view.y1);
-				ctx.lineTo(view.x1 - 11, view.y1 - 10);
-				ctx.lineTo(view.x1 - 11, view.y1 + 10);
-				ctx.lineTo(view.x1 , view.y1 );
-				ctx.fill();
-				ctx.restore();
+
+
+
+				if(view.mirror || view.align === 'right'){
+
+					ctx.save();
+					// Canvas setup
+					ctx.beginPath();
+					ctx.rect(view.clip.x2 + 1, view.clip.y1, 11, view.clip.y2 - view.clip.y1);
+					ctx.clip();
+
+					// Draw
+					ctx.beginPath();
+					ctx.fillStyle = view.backgroundColor
+
+					ctx.moveTo(view.x2 + 1, view.y1);
+					ctx.lineTo(view.x2 + 11, view.y1 - 10);
+					ctx.lineTo(view.x2 + 11, view.y1 + 10);
+					ctx.lineTo(view.x2 + 1 , view.y1 );
+					ctx.fill();
+					ctx.restore();
+				}
+			} else {
+				if(view.align === 'top'){
+					//console.log(view)
+					ctx.save();
+					// Canvas setup
+					ctx.beginPath();
+					//console.log(view.clip.x1, view.clip.y1, view.clip.x2, view.clip.y1, view.x1, view.y1)
+					ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
+					ctx.clip();
+
+					ctx.lineWidth = view.borderWidth;
+					ctx.strokeStyle = view.borderColor;
+
+					if (ctx.setLineDash) {
+						ctx.setLineDash(view.borderDash);
+					}
+					ctx.lineDashOffset = view.borderDashOffset;
+
+					// Draw
+					ctx.beginPath();
+					ctx.fillStyle = view.backgroundColor
+					ctx.moveTo(view.x1, view.y1 + 11);
+					ctx.lineTo(view.x1 + 10, view.y1 );
+					ctx.lineTo(view.x1 - 10, view.y1 );
+					ctx.lineTo(view.x1 , view.y1 + 11 );
+					ctx.fill();
+					ctx.restore();
+				}
+
+				if(view.mirror || view.align === 'bottom'){
+//console.log(view.clip.x1, view.clip.y1, view.clip.x2, 11)
+					//console.log(view)
+					ctx.save();
+					// Canvas setup
+					ctx.beginPath();
+					ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
+					ctx.clip();
+
+					// Draw
+					ctx.beginPath();
+					ctx.fillStyle = view.backgroundColor
+
+					ctx.moveTo(view.x1, view.y2);
+					ctx.lineTo(view.x1 - 10, view.y2 + 11);
+					ctx.lineTo(view.x1 + 10, view.y2 + 11);
+					ctx.lineTo(view.x1, view.y2 );
+					ctx.fill();
+					ctx.restore();
+				}
 			}
 
-
-
-
-			if(view.mirror || view.align === 'right'){
-
-				ctx.save();
-				// Canvas setup
-				ctx.beginPath();
-				ctx.rect(view.clip.x2 + 1, view.clip.y1, 11, view.clip.y2 - view.clip.y1);
-				ctx.clip();
-
-				// Draw
-				ctx.beginPath();
-				ctx.fillStyle = view.backgroundColor
-
-				ctx.moveTo(view.x2 + 1, view.y1);
-				ctx.lineTo(view.x2 + 11, view.y1 - 10);
-				ctx.lineTo(view.x2 + 11, view.y1 + 10);
-				ctx.lineTo(view.x2 + 1 , view.y1 );
-				ctx.fill();
-				ctx.restore();
-			}
 
 
 			if (view.labelEnabled && view.labelContent) {
