@@ -117,25 +117,7 @@ module.exports = function(Chart) {
 
 			var chartArea = chartInstance.chartArea;
 
-			// clip annotations to the chart area
-			model.clip = {
-				x1: chartArea.left,
-				x2: chartArea.right,
-				y1: chartArea.top,
-				y2: chartArea.bottom
-			};
 
-			if (this.options.mode === horizontalKeyword) {
-				model.x1 = chartArea.left;
-				model.x2 = chartArea.right;
-				model.y1 = pixel;
-				model.y2 = endPixel;
-			} else {
-				model.y1 = chartArea.top;
-				model.y2 = chartArea.bottom;
-				model.x1 = pixel;
-				model.x2 = endPixel;
-			}
 
 			model.line = new LineFunction(model);
 			model.mode = options.mode;
@@ -168,6 +150,27 @@ module.exports = function(Chart) {
 			model.borderWidth = options.borderWidth;
 			model.borderDash = options.borderDash || [];
 			model.borderDashOffset = options.borderDashOffset || 0;
+			model.extend = options.extend || [0,0]
+
+			// clip annotations to the chart area
+			model.clip = {
+				x1: chartArea.left - model.extend[0],
+				x2: chartArea.right + model.extend[1],
+				y1: chartArea.top,
+				y2: chartArea.bottom
+			};
+
+			if (this.options.mode === horizontalKeyword) {
+				model.x1 = chartArea.left - model.extend[0];
+				model.x2 = chartArea.right + model.extend[1];
+				model.y1 = pixel;
+				model.y2 = endPixel;
+			} else {
+				model.y1 = chartArea.top;
+				model.y2 = chartArea.bottom;
+				model.x1 = pixel;
+				model.x2 = endPixel;
+			}
 		},
 		inRange: function(mouseX, mouseY) {
 			var model = this._model;
