@@ -238,10 +238,10 @@ module.exports = function(Chart) {
 					// Draw
 					ctx.beginPath();
 					ctx.fillStyle = view.backgroundColor
-					ctx.moveTo(view.x1 - 1 + (view.inside ? 11 : 0), view.y1);
-					ctx.lineTo(view.x1 - 11 + ( view.inside ? 11 : 0), view.y1 - 10);
-					ctx.lineTo(view.x1 - 11 + (view.inside ? 11 : 0), view.y1 + 10);
-					ctx.lineTo(view.x1 - 1 + (view.inside ? 11 : 0), view.y1 );
+					ctx.moveTo(view.x1 + (view.inside ? 10 : 0), view.y1);
+					ctx.lineTo(view.x1 - 10 + ( view.inside ? 10 : 0), view.y1 - 10);
+					ctx.lineTo(view.x1 - 10 + (view.inside ? 10 : 0), view.y1 + 10);
+					ctx.lineTo(view.x1 + (view.inside ? 10 : 0), view.y1 );
 
 					ctx.fill();
 					ctx.restore();
@@ -262,10 +262,10 @@ module.exports = function(Chart) {
 					ctx.beginPath();
 					ctx.fillStyle = view.backgroundColor
 
-					ctx.moveTo(view.x2 + 1 - (view.inside ? 11 : 0), view.y1);
-					ctx.lineTo(view.x2 + 11 - (view.inside ? 11 : 0), view.y1 - 10);
-					ctx.lineTo(view.x2 + 11 - (view.inside ? 11 : 0), view.y1 + 10);
-					ctx.lineTo(view.x2 + 1  - (view.inside ? 11 : 0), view.y1 );
+					ctx.moveTo(view.x2 - (view.inside ? 10 : 0), view.y1);
+					ctx.lineTo(view.x2 + 10 - (view.inside ? 10 : 0), view.y1 - 10);
+					ctx.lineTo(view.x2 + 10 - (view.inside ? 10 : 0), view.y1 + 10);
+					ctx.lineTo(view.x2  - (view.inside ? 10 : 0), view.y1 );
 					ctx.fill();
 					ctx.restore();
 				}
