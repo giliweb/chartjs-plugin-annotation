@@ -303,7 +303,7 @@ module.exports = function(Chart) {
 					ctx.save();
 					// Canvas setup
 					ctx.beginPath();
-					ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
+					ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1 + 11);
 					ctx.clip();
 
 					// Draw
