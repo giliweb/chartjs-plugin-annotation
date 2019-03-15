@@ -155,7 +155,7 @@ module.exports = function(Chart) {
 			model.mirror = options.mirror || false
 			model.align = options.align || 'left'
 			model.padding = options.padding ? options.padding * (model.align === 'left' ? -1 : 1) : 0
-
+			model.inside = options.inside || false
 
 			model.clip = {
 				x1: chartArea.left + model.padding,
@@ -224,7 +224,7 @@ module.exports = function(Chart) {
 					ctx.save();
 					// Canvas setup
 					ctx.beginPath();
-					ctx.rect(view.clip.x1 - 11, view.clip.y1, 10, view.clip.y2 - view.clip.y1);
+					ctx.rect(view.clip.x1 - 21, view.clip.y1 - 20, view.clip.x2 - view.clip.x1 + 200, view.clip.y2 - view.clip.y1 + 200);
 					ctx.clip();
 
 					ctx.lineWidth = view.borderWidth;
@@ -238,10 +238,11 @@ module.exports = function(Chart) {
 					// Draw
 					ctx.beginPath();
 					ctx.fillStyle = view.backgroundColor
-					ctx.moveTo(view.x1 - 1, view.y1);
-					ctx.lineTo(view.x1 - 11, view.y1 - 10);
-					ctx.lineTo(view.x1 - 11, view.y1 + 10);
-					ctx.lineTo(view.x1 , view.y1 );
+					ctx.moveTo(view.x1 - 1 + (view.inside ? 11 : 0), view.y1);
+					ctx.lineTo(view.x1 - 11 + ( view.inside ? 11 : 0), view.y1 - 10);
+					ctx.lineTo(view.x1 - 11 + (view.inside ? 11 : 0), view.y1 + 10);
+					ctx.lineTo(view.x1 - 1 + (view.inside ? 11 : 0), view.y1 );
+
 					ctx.fill();
 					ctx.restore();
 				}
@@ -254,17 +255,17 @@ module.exports = function(Chart) {
 					ctx.save();
 					// Canvas setup
 					ctx.beginPath();
-					ctx.rect(view.clip.x2 + 1, view.clip.y1, 11, view.clip.y2 - view.clip.y1);
+					ctx.rect(view.clip.x2 - 11, view.clip.y1, view.clip.x2 - view.clip.x1 + 11, view.clip.y2 - view.clip.y1);
 					ctx.clip();
 
 					// Draw
 					ctx.beginPath();
 					ctx.fillStyle = view.backgroundColor
 
-					ctx.moveTo(view.x2 + 1, view.y1);
-					ctx.lineTo(view.x2 + 11, view.y1 - 10);
-					ctx.lineTo(view.x2 + 11, view.y1 + 10);
-					ctx.lineTo(view.x2 + 1 , view.y1 );
+					ctx.moveTo(view.x2 + 1 - (view.inside ? 11 : 0), view.y1);
+					ctx.lineTo(view.x2 + 11 - (view.inside ? 11 : 0), view.y1 - 10);
+					ctx.lineTo(view.x2 + 11 - (view.inside ? 11 : 0), view.y1 + 10);
+					ctx.lineTo(view.x2 + 1  - (view.inside ? 11 : 0), view.y1 );
 					ctx.fill();
 					ctx.restore();
 				}
@@ -275,7 +276,7 @@ module.exports = function(Chart) {
 					// Canvas setup
 					ctx.beginPath();
 					//console.log(view.clip.x1, view.clip.y1, view.clip.x2, view.clip.y1, view.x1, view.y1)
-					ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
+					ctx.rect(view.clip.x1, view.clip.y1 - 11, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
 					ctx.clip();
 
 					ctx.lineWidth = view.borderWidth;
@@ -289,31 +290,29 @@ module.exports = function(Chart) {
 					// Draw
 					ctx.beginPath();
 					ctx.fillStyle = view.backgroundColor
-					ctx.moveTo(view.x1, view.y1 + 11);
-					ctx.lineTo(view.x1 + 10, view.y1 );
-					ctx.lineTo(view.x1 - 10, view.y1 );
-					ctx.lineTo(view.x1 , view.y1 + 11 );
+					ctx.moveTo(view.x1, view.y1 + (view.inside ? 11 : 0));
+					ctx.lineTo(view.x1 + 10, view.y1 - 11 + (view.inside ? 11 : 0));
+					ctx.lineTo(view.x1 - 10, view.y1 - 11 + (view.inside ? 11 : 0));
+					ctx.lineTo(view.x1 , view.y1 + (view.inside ? 11 : 0));
 					ctx.fill();
 					ctx.restore();
 				}
 
 				if(view.mirror || view.align === 'bottom'){
-//console.log(view.clip.x1, view.clip.y1, view.clip.x2, 11)
-					//console.log(view)
 					ctx.save();
 					// Canvas setup
 					ctx.beginPath();
-					ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1 + 11);
+					ctx.rect(view.clip.x1, view.clip.y1 - 11, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1 + 11);
 					ctx.clip();
 
 					// Draw
 					ctx.beginPath();
 					ctx.fillStyle = view.backgroundColor
 
-					ctx.moveTo(view.x1, view.y2);
-					ctx.lineTo(view.x1 - 10, view.y2 + 11);
-					ctx.lineTo(view.x1 + 10, view.y2 + 11);
-					ctx.lineTo(view.x1, view.y2 );
+					ctx.moveTo(view.x1, view.y2 - (view.inside ? 11 : 0));
+					ctx.lineTo(view.x1 - 10, view.y2 + 11 - (view.inside ? 11 : 0));
+					ctx.lineTo(view.x1 + 10, view.y2 + 11 - (view.inside ? 11 : 0));
+					ctx.lineTo(view.x1, view.y2 - (view.inside ? 11 : 0));
 					ctx.fill();
 					ctx.restore();
 				}
