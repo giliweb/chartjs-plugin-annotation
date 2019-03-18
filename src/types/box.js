@@ -114,7 +114,7 @@ module.exports = function(Chart) {
 			model.labelContent = options.label.content;
 
 			ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
-			var textWidth = ctx.measureText(model.labelContent.split('\n')[0]).width;
+			var textWidth = model.labelContent ? ctx.measureText(model.labelContent.split('\n')[0]).width : 0;
 			var textHeight = ctx.measureText('M').width;
 			//var labelPosition = calculateLabelPosition(model, textWidth, textHeight, model.labelXPadding, model.labelYPadding);
 			model.labelX = model.left - model.labelXPadding - (model.labelPosition === 'center' ? textWidth / 2 : 0) + model.labelXAdjust;
