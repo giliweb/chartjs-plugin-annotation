@@ -45,42 +45,42 @@ module.exports = function(Chart) {
 		var ya = 0;
 
 		switch (true) {
-		// top align
-		case view.mode === verticalKeyword && view.labelPosition === 'top':
-			ya = padHeight + view.labelYAdjust;
-			xa = (width / 2) + view.labelXAdjust;
-			ret.y = view.y1 + ya;
-			ret.x = (isFinite(line.m) ? line.getX(ret.y) : view.x1) - xa;
-			break;
+			// top align
+			case view.mode === verticalKeyword && view.labelPosition === 'top':
+				ya = padHeight + view.labelYAdjust;
+				xa = (width / 2) + view.labelXAdjust;
+				ret.y = view.y1 + ya;
+				ret.x = (isFinite(line.m) ? line.getX(ret.y) : view.x1) - xa;
+				break;
 
-		// bottom align
-		case view.mode === verticalKeyword && view.labelPosition === 'bottom':
-			ya = height + padHeight + view.labelYAdjust;
-			xa = (width / 2) + view.labelXAdjust;
-			ret.y = view.y2 - ya;
-			ret.x = (isFinite(line.m) ? line.getX(ret.y) : view.x1) - xa;
-			break;
+			// bottom align
+			case view.mode === verticalKeyword && view.labelPosition === 'bottom':
+				ya = height + padHeight + view.labelYAdjust;
+				xa = (width / 2) + view.labelXAdjust;
+				ret.y = view.y2 - ya;
+				ret.x = (isFinite(line.m) ? line.getX(ret.y) : view.x1) - xa;
+				break;
 
-		// left align
-		case view.mode === horizontalKeyword && view.labelPosition === 'left':
-			xa = padWidth + view.labelXAdjust;
-			ya = -(height / 2) + view.labelYAdjust;
-			ret.x = view.x1 + xa;
-			ret.y = line.getY(ret.x) + ya;
-			break;
+			// left align
+			case view.mode === horizontalKeyword && view.labelPosition === 'left':
+				xa = padWidth + view.labelXAdjust;
+				ya = -(height / 2) + view.labelYAdjust;
+				ret.x = view.x1 + xa;
+				ret.y = line.getY(ret.x) + ya;
+				break;
 
-		// right align
-		case view.mode === horizontalKeyword && view.labelPosition === 'right':
-			xa = width + padWidth + view.labelXAdjust;
-			ya = -(height / 2) + view.labelYAdjust;
-			ret.x = view.x2 - xa;
-			ret.y = line.getY(ret.x) + ya;
-			break;
+			// right align
+			case view.mode === horizontalKeyword && view.labelPosition === 'right':
+				xa = width + padWidth + view.labelXAdjust;
+				ya = -(height / 2) + view.labelYAdjust;
+				ret.x = view.x2 - xa;
+				ret.y = line.getY(ret.x) + ya;
+				break;
 
-		// center align
-		default:
-			ret.x = ((view.x1 + view.x2 - width) / 2) + view.labelXAdjust;
-			ret.y = ((view.y1 + view.y2 - height) / 2) + view.labelYAdjust;
+			// center align
+			default:
+				ret.x = ((view.x1 + view.x2 - width) / 2) + view.labelXAdjust;
+				ret.y = ((view.y1 + view.y2 - height) / 2) + view.labelYAdjust;
 		}
 
 		return ret;
@@ -234,6 +234,7 @@ module.exports = function(Chart) {
 			ctx.stroke();
 
 			if (view.labelEnabled && view.labelContent) {
+				var lines = view.labelContent.split('\n')
 				ctx.beginPath();
 				ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
 				ctx.clip();
@@ -257,13 +258,18 @@ module.exports = function(Chart) {
 					view.labelFontFamily
 				);
 				ctx.fillStyle = view.labelFontColor;
-				ctx.textAlign = 'center';
+				ctx.textAlign = view.labelPosition;
 				ctx.textBaseline = 'middle';
-				ctx.fillText(
-					view.labelContent,
-					view.labelX + (view.labelWidth / 2),
-					view.labelY + (view.labelHeight / 2)
-				);
+
+
+				for (var i = 0; i<lines.length; i++)
+					ctx.fillText(
+						lines[i],
+						view.labelX + (view.labelPosition === 'center' ? (view.labelWidth / 2) : 0),
+						view.labelY + (view.labelHeight / 2) + (i * view.labelFontSize)
+					);
+
+
 			}
 
 			ctx.restore();

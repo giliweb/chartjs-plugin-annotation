@@ -2,6 +2,7 @@
 module.exports = function(Chart) {
 	/* eslint-disable global-require */
 	var helpers = require('../helpers.js')(Chart);
+	var chartHelpers = Chart.helpers;
 	/* eslint-enable global-require */
 
 	var BoxAnnotation = Chart.Annotation.Element.extend({
@@ -48,7 +49,7 @@ module.exports = function(Chart) {
 			var model = this._model;
 			var options = this.options;
 			var chartInstance = this.chartInstance;
-
+			var ctx = chartInstance.chart.ctx;
 			var xScale = chartInstance.scales[options.xScaleID];
 			var yScale = chartInstance.scales[options.yScaleID];
 			var chartArea = chartInstance.chartArea;
@@ -95,6 +96,31 @@ module.exports = function(Chart) {
 			model.lineDash = options.lineDash ? options.lineDash : []
 			model.data = options.data ? options.data : null
 			model.selected = options.selected ? options.selected : null
+
+
+			// Figure out the label:
+			model.labelBackgroundColor = options.label.backgroundColor;
+			model.labelFontFamily = options.label.fontFamily;
+			model.labelFontSize = options.label.fontSize;
+			model.labelFontStyle = options.label.fontStyle;
+			model.labelFontColor = options.label.fontColor;
+			model.labelXPadding = options.label.xPadding;
+			model.labelYPadding = options.label.yPadding;
+			model.labelCornerRadius = options.label.cornerRadius;
+			model.labelPosition = options.label.position;
+			model.labelXAdjust = options.label.xAdjust;
+			model.labelYAdjust = options.label.yAdjust;
+			model.labelEnabled = options.label.enabled;
+			model.labelContent = options.label.content;
+
+			ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
+			var textWidth = ctx.measureText(model.labelContent.split('\n')[0]).width;
+			var textHeight = ctx.measureText('M').width;
+			//var labelPosition = calculateLabelPosition(model, textWidth, textHeight, model.labelXPadding, model.labelYPadding);
+			model.labelX = model.left - model.labelXPadding - (model.labelPosition === 'center' ? textWidth / 2 : 0) + model.labelXAdjust;
+			model.labelY = model.top - model.labelYPadding + model.labelYAdjust;
+			model.labelWidth = textWidth + (2 * model.labelXPadding);
+			model.labelHeight = textHeight + (2 * model.labelYPadding);
 		},
 		inRange: function(mouseX, mouseY) {
 			var model = this._model;
@@ -141,8 +167,50 @@ module.exports = function(Chart) {
 			// Draw
 			var width = view.right - view.left;
 			var height = view.bottom - view.top;
+
 			ctx.fillRect(view.left, view.top, width, height);
 			ctx.strokeRect(view.left, view.top, width, height);
+
+			if (view.labelEnabled && view.labelContent) {
+				var lines = view.labelContent.split('\n')
+				ctx.beginPath();
+				ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
+				ctx.clip();
+
+				ctx.fillStyle = view.labelBackgroundColor;
+				// Draw the tooltip
+				ctx.shadowColor = 'black';
+				ctx.shadowBlur = 5;
+				chartHelpers.drawRoundedRectangle(
+					ctx,
+					view.labelX, // x
+					view.labelY, // y
+					view.labelWidth, // width
+					(view.labelHeight * lines.length * .7), // height
+					view.labelCornerRadius // radius
+				);
+				ctx.fill();
+				ctx.shadowColor = 'transparent'
+				// Draw the text
+				ctx.font = chartHelpers.fontString(
+					view.labelFontSize,
+					view.labelFontStyle,
+					view.labelFontFamily
+				);
+				ctx.fillStyle = view.labelFontColor;
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+
+
+				for (var i = 0; i<lines.length; i++)
+					ctx.fillText(
+						lines[i],
+						view.labelX + (view.labelWidth / 2),
+						view.labelY + (view.labelHeight / 2) + (i * view.labelFontSize)
+					);
+
+			}
+
 
 			ctx.restore();
 		}
