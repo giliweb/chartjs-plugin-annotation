@@ -267,9 +267,6 @@ module.exports = function(Chart) {
 			}
 
 			if (view.labelEnabled && view.labelContent) {
-				if(view.labelWidth > 150){
-					console.log(view)
-				}
 				var lines = view.labelContent.split('\n')
 				ctx.beginPath();
 				ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
