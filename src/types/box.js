@@ -67,37 +67,6 @@ module.exports = function(Chart) {
 			var right = chartArea.right;
 			var bottom = chartArea.bottom;
 
-			var min, max;
-
-			if (xScale) {
-				min = helpers.isValid(options.xMin) ? xScale.getPixelForValue(options.xMin) : chartArea.left;
-				max = helpers.isValid(options.xMax) ? xScale.getPixelForValue(options.xMax) : chartArea.right;
-				left = Math.min(min, max);
-				right = Math.max(min, max);
-			}
-
-			if (yScale) {
-				min = helpers.isValid(options.yMin) ? yScale.getPixelForValue(options.yMin) : chartArea.bottom;
-				max = helpers.isValid(options.yMax) ? yScale.getPixelForValue(options.yMax) : chartArea.top;
-				top = Math.min(min, max);
-				bottom = Math.max(min, max);
-			}
-
-			// Ensure model has rect coordinates
-			model.left = left;
-			model.top = top;
-			model.right = right;
-			model.bottom = bottom;
-
-			// Stylistic options
-			model.borderColor = options.borderColor;
-			model.borderWidth = options.borderWidth;
-			model.backgroundColor = options.backgroundColor;
-			model.lineDash = options.lineDash ? options.lineDash : []
-			model.data = options.data ? options.data : null
-			model.selected = options.selected ? options.selected : null
-
-
 			// Figure out the label:
 			model.labelBackgroundColor = options.label.backgroundColor;
 			model.labelFontFamily = options.label.fontFamily;
@@ -116,11 +85,61 @@ module.exports = function(Chart) {
 			ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
 			var textWidth = model.labelContent ? ctx.measureText(model.labelContent.split('\n')[0]).width : 0;
 			var textHeight = ctx.measureText('M').width;
+			var lines = model.labelContent ? model.labelContent.split('\n') : []
 			//var labelPosition = calculateLabelPosition(model, textWidth, textHeight, model.labelXPadding, model.labelYPadding);
 			model.labelX = model.left - model.labelXPadding - (model.labelPosition === 'center' ? textWidth / 2 : 0) + model.labelXAdjust;
 			model.labelY = model.top - model.labelYPadding + model.labelYAdjust;
 			model.labelWidth = textWidth + (2 * model.labelXPadding);
-			model.labelHeight = textHeight + (2 * model.labelYPadding);
+			model.labelHeight = (textHeight * lines.length) + (2 * model.labelYPadding);
+
+
+			var min, max;
+			//console.log(chartArea)
+			//console.log(model.labelX, model.labelY)
+			if (xScale) {
+				min = helpers.isValid(options.xMin) ? xScale.getPixelForValue(options.xMin) : chartArea.left;
+				max = helpers.isValid(options.xMax) ? xScale.getPixelForValue(options.xMax) : chartArea.right;
+				left = Math.min(min, max);
+				right = Math.max(min, max);
+				//console.log(min, max)
+				if(model.labelX < chartArea.left){
+					model.labelX = chartArea.left + 10
+				}
+				if(model.labelX + model.labelWidth > chartArea.right){
+					model.labelX = chartArea.right - model.labelWidth - 10
+				}
+			}
+
+			if (yScale) {
+				min = helpers.isValid(options.yMin) ? yScale.getPixelForValue(options.yMin) : chartArea.bottom;
+				max = helpers.isValid(options.yMax) ? yScale.getPixelForValue(options.yMax) : chartArea.top;
+				top = Math.min(min, max);
+				bottom = Math.max(min, max);
+
+				if(model.labelY < chartArea.top){
+					model.labelY = chartArea.top + 10
+				}
+				if(model.labelY + model.labelHeight > chartArea.bottom){
+					model.labelY = chartArea.bottom - model.labelHeight - 10
+				}
+			}
+
+			// Ensure model has rect coordinates
+			model.left = left;
+			model.top = top;
+			model.right = right;
+			model.bottom = bottom;
+
+			// Stylistic options
+			model.borderColor = options.borderColor;
+			model.borderWidth = options.borderWidth;
+			model.backgroundColor = options.backgroundColor;
+			model.lineDash = options.lineDash ? options.lineDash : []
+			model.data = options.data ? options.data : null
+			model.selected = options.selected ? options.selected : null
+
+
+
 		},
 		inRange: function(mouseX, mouseY) {
 			var model = this._model;
@@ -172,6 +191,7 @@ module.exports = function(Chart) {
 			ctx.strokeRect(view.left, view.top, width, height);
 
 			if (view.labelEnabled && view.labelContent) {
+				//console.log(view)
 				var lines = view.labelContent.split('\n')
 				ctx.beginPath();
 				ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
@@ -186,7 +206,7 @@ module.exports = function(Chart) {
 					view.labelX, // x
 					view.labelY, // y
 					view.labelWidth, // width
-					(view.labelHeight * lines.length * .7), // height
+					(view.labelHeight), // height
 					view.labelCornerRadius // radius
 				);
 				ctx.fill();
@@ -206,7 +226,7 @@ module.exports = function(Chart) {
 					ctx.fillText(
 						lines[i],
 						view.labelX + (view.labelWidth / 2),
-						view.labelY + (view.labelHeight / 2) + (i * view.labelFontSize)
+						view.labelY + (i * (view.labelHeight / lines.length)) + 10
 					);
 
 			}

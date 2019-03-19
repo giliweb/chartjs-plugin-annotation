@@ -39,6 +39,8 @@ module.exports = function(Chart) {
 	}
 
 	function calculateLabelPosition(view, width, height, padWidth, padHeight) {
+
+
 		var line = view.line;
 		var ret = {};
 		var xa = 0;
@@ -136,10 +138,13 @@ module.exports = function(Chart) {
 			model.labelYAdjust = options.label.yAdjust;
 			model.labelEnabled = options.label.enabled;
 			model.labelContent = options.label.content;
+			model.labelTextAlign = options.label.textAlign || 'center'
+			var lines = model.labelContent ? model.labelContent.split('\n') : []
 
 			ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
-			var textWidth = ctx.measureText(model.labelContent).width;
+			var textWidth = model.labelContent ? ctx.measureText(lines[0]).width : 0;
 			var textHeight = ctx.measureText('M').width;
+
 			var labelPosition = calculateLabelPosition(model, textWidth, textHeight, model.labelXPadding, model.labelYPadding);
 			model.labelX = labelPosition.x - model.labelXPadding;
 			model.labelY = labelPosition.y - model.labelYPadding;
@@ -151,6 +156,9 @@ module.exports = function(Chart) {
 			model.borderDash = options.borderDash || [];
 			model.borderDashOffset = options.borderDashOffset || 0;
 			model.extend = options.extend || [0,0]
+			model.shadow = options.shadow || []
+			model.shadowWidth = options.shadowWidth || 1
+			model.shadowColor = options.shadowColor || '#ffffff'
 
 			// clip annotations to the chart area
 			model.clip = {
@@ -233,7 +241,35 @@ module.exports = function(Chart) {
 			ctx.lineTo(view.x2, view.y2);
 			ctx.stroke();
 
+			if(view.shadow){
+				ctx.strokeStyle = view.shadowColor
+				ctx.lineWidth = view.shadowWidth;
+				if(view.mode === horizontalKeyword){
+					ctx.beginPath();
+					ctx.moveTo(view.x1, view.y1 - view.shadow[0]);
+					ctx.lineTo(view.x2, view.y2 - view.shadow[0]);
+					ctx.stroke();
+					ctx.beginPath();
+					ctx.moveTo(view.x1, view.y1 + view.shadow[1]);
+					ctx.lineTo(view.x2, view.y2 + view.shadow[1]);
+					ctx.stroke();
+				} else {
+					ctx.beginPath();
+					ctx.moveTo(view.x1 - view.shadow[0], view.y1);
+					ctx.lineTo(view.x2 - view.shadow[0], view.y2);
+					ctx.stroke();
+					ctx.beginPath();
+					ctx.moveTo(view.x1 + view.shadow[1], view.y1);
+					ctx.lineTo(view.x2 + view.shadow[1], view.y2);
+					ctx.stroke();
+				}
+
+			}
+
 			if (view.labelEnabled && view.labelContent) {
+				if(view.labelWidth > 150){
+					console.log(view)
+				}
 				var lines = view.labelContent.split('\n')
 				ctx.beginPath();
 				ctx.rect(view.clip.x1, view.clip.y1, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
@@ -258,14 +294,22 @@ module.exports = function(Chart) {
 					view.labelFontFamily
 				);
 				ctx.fillStyle = view.labelFontColor;
-				ctx.textAlign = view.labelPosition;
+				ctx.textAlign = view.labelTextAlign;
 				ctx.textBaseline = 'middle';
 
+				let x
+				if(view.labelTextAlign === 'left'){
+					x = view.labelX
+				} else if(view.labelTextAlign === 'right'){
+					x = view.labelX + view.labelWidth
+				} else {
+					x = view.labelX + (view.labelWidth / 2)
+				}
 
 				for (var i = 0; i<lines.length; i++)
 					ctx.fillText(
 						lines[i],
-						view.labelX + (view.labelPosition === 'center' ? (view.labelWidth / 2) : 0),
+						x,
 						view.labelY + (view.labelHeight / 2) + (i * view.labelFontSize)
 					);
 
