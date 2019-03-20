@@ -39,7 +39,7 @@ module.exports = function(Chart) {
     }
 
     function calculateLabelPosition(view, width, height, padWidth, padHeight) {
-        console.log(view, width, height, padWidth, padHeight)
+        //console.log(view, width, height, padWidth, padHeight)
         var line = view.line;
         var ret = {};
         var xa = 0;
@@ -354,7 +354,10 @@ module.exports = function(Chart) {
                         ctx.moveTo(view.x1 + (view.inside ? view.arrowWidth : 0) - 1, view.y1)
                         if(view.onPoint){
                             if(view.mirrorX){
-                                ctx.lineTo(view.mirrorX - (view.inside ? view.arrowWidth : 0) + 1, view.y1);
+                                var x = view.mirrorX - (view.inside ? view.arrowWidth : 0) + 1
+                                x = Math.min(x, view.right)
+                                //console.log(x, view.right)
+                                ctx.lineTo(x, view.y1);
                             } else {
                                 ctx.lineTo(view.x1 - (view.inside ? view.arrowWidth : 0) + 1, view.y1);
                             }
