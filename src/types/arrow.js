@@ -39,48 +39,19 @@ module.exports = function(Chart) {
     }
 
     function calculateLabelPosition(view, width, height, padWidth, padHeight) {
+        console.log(view, width, height, padWidth, padHeight)
         var line = view.line;
         var ret = {};
         var xa = 0;
         var ya = 0;
 
-        switch (true) {
-            // top align
-            case view.mode === verticalKeyword && view.labelPosition === 'top':
-                ya = padHeight + view.labelYAdjust;
-                xa = (width / 2) + view.labelXAdjust;
-                ret.y = view.y1 + ya;
-                ret.x = (isFinite(line.m) ? line.getX(ret.y) : view.x1) - xa;
-                break;
+        xa = padWidth + view.labelXAdjust;
+        ya = -(height / 2) + view.labelYAdjust;
+        ret.x = view.mirrorX + xa + view.arrowWidth;
+        ret.y = line.getY(ret.x) + ya;
 
-            // bottom align
-            case view.mode === verticalKeyword && view.labelPosition === 'bottom':
-                ya = height + padHeight + view.labelYAdjust;
-                xa = (width / 2) + view.labelXAdjust;
-                ret.y = view.y2 - ya;
-                ret.x = (isFinite(line.m) ? line.getX(ret.y) : view.x1) - xa;
-                break;
-
-            // left align
-            case view.mode === horizontalKeyword && view.labelPosition === 'left':
-                xa = padWidth + view.labelXAdjust;
-                ya = -(height / 2) + view.labelYAdjust;
-                ret.x = view.x1 + xa;
-                ret.y = line.getY(ret.x) + ya;
-                break;
-
-            // right align
-            case view.mode === horizontalKeyword && view.labelPosition === 'right':
-                xa = width + padWidth + view.labelXAdjust;
-                ya = -(height / 2) + view.labelYAdjust;
-                ret.x = view.x2 - xa;
-                ret.y = line.getY(ret.x) + ya;
-                break;
-
-            // center align
-            default:
-                ret.x = ((view.x1 + view.x2 - width) / 2) + view.labelXAdjust;
-                ret.y = ((view.y1 + view.y2 - height) / 2) + view.labelYAdjust;
+        if(ret.x + width > view.right){
+            ret.x = view.x1 - width - view.arrowWidth - xa
         }
 
         return ret;
@@ -176,6 +147,7 @@ module.exports = function(Chart) {
             model.labelYAdjust = options.label.yAdjust;
             model.labelEnabled = options.label.enabled;
             model.labelContent = options.label.content;
+            model.labelTextAlign = options.label && options.label.textAlign ? options.label.textAlign : 'center';
 
             ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
             var textWidth = ctx.measureText(model.labelContent).width;
@@ -199,6 +171,7 @@ module.exports = function(Chart) {
             model.inside = options.inside || false
             model.onPoint = options.onPoint || false
             model.connectMirror = options.connectMirror || false
+            model.arrowWidth = options.arrowWidth || 10
 
             model.clip = {
                 x1: chartArea.left + model.padding,
@@ -328,10 +301,10 @@ module.exports = function(Chart) {
                     // Draw
                     ctx.beginPath();
                     ctx.fillStyle = view.backgroundColor
-                    ctx.moveTo(view.x1 + (view.inside ? 10 : 0), view.y1);
-                    ctx.lineTo(view.x1 - 10 + ( view.inside ? 10 : 0), view.y1 - 10);
-                    ctx.lineTo(view.x1 - 10 + (view.inside ? 10 : 0), view.y1 + 10);
-                    ctx.lineTo(view.x1 + (view.inside ? 10 : 0), view.y1 );
+                    ctx.moveTo(view.x1 + (view.inside ? view.arrowWidth : 0), view.y1);
+                    ctx.lineTo(view.x1 - view.arrowWidth + ( view.inside ? view.arrowWidth : 0), view.y1 - view.arrowWidth);
+                    ctx.lineTo(view.x1 - view.arrowWidth + (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowWidth);
+                    ctx.lineTo(view.x1 + (view.inside ? view.arrowWidth : 0), view.y1 );
 
                     ctx.fill();
                     ctx.restore();
@@ -351,22 +324,22 @@ module.exports = function(Chart) {
                     ctx.fillStyle = view.backgroundColor
                     if(view.onPoint){
                         if(view.mirrorX){
-                            ctx.moveTo(view.mirrorX - (view.inside ? 10 : 0), view.y1);
-                            ctx.lineTo(view.mirrorX + 10 - (view.inside ? 10 : 0), view.y1 - 10);
-                            ctx.lineTo(view.mirrorX + 10 - (view.inside ? 10 : 0), view.y1 + 10);
-                            ctx.lineTo(view.mirrorX  - (view.inside ? 10 : 0), view.y1 );
+                            ctx.moveTo(view.mirrorX - (view.inside ? view.arrowWidth : 0), view.y1);
+                            ctx.lineTo(view.mirrorX + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 - view.arrowWidth);
+                            ctx.lineTo(view.mirrorX + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowWidth);
+                            ctx.lineTo(view.mirrorX  - (view.inside ? view.arrowWidth : 0), view.y1 );
                         } else {
-                            ctx.moveTo(view.x1 - (view.inside ? 10 : 0), view.y1);
-                            ctx.lineTo(view.x1 + 10 - (view.inside ? 10 : 0), view.y1 - 10);
-                            ctx.lineTo(view.x1 + 10 - (view.inside ? 10 : 0), view.y1 + 10);
-                            ctx.lineTo(view.x1  - (view.inside ? 10 : 0), view.y1 );
+                            ctx.moveTo(view.x1 - (view.inside ? view.arrowWidth : 0), view.y1);
+                            ctx.lineTo(view.x1 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 - view.arrowWidth);
+                            ctx.lineTo(view.x1 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowWidth);
+                            ctx.lineTo(view.x1  - (view.inside ? view.arrowWidth : 0), view.y1 );
                         }
 
                     } else {
-                        ctx.moveTo(view.x2 - (view.inside ? 10 : 0), view.y1);
-                        ctx.lineTo(view.x2 + 10 - (view.inside ? 10 : 0), view.y1 - 10);
-                        ctx.lineTo(view.x2 + 10 - (view.inside ? 10 : 0), view.y1 + 10);
-                        ctx.lineTo(view.x2  - (view.inside ? 10 : 0), view.y1 );
+                        ctx.moveTo(view.x2 - (view.inside ? view.arrowWidth : 0), view.y1);
+                        ctx.lineTo(view.x2 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 - view.arrowWidth);
+                        ctx.lineTo(view.x2 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowWidth);
+                        ctx.lineTo(view.x2  - (view.inside ? view.arrowWidth : 0), view.y1 );
                     }
 
                     ctx.fill();
@@ -376,18 +349,18 @@ module.exports = function(Chart) {
                     if(view.connectMirror){
                         ctx.save();
                         ctx.strokeStyle = view.borderColor
-                        ctx.strokeWidth = view.borderWidth
+                        ctx.lineWidth = view.borderWidth
                         ctx.beginPath();
-                        ctx.moveTo(view.x1 + (view.inside ? 10 : 0) - 1, view.y1)
+                        ctx.moveTo(view.x1 + (view.inside ? view.arrowWidth : 0) - 1, view.y1)
                         if(view.onPoint){
                             if(view.mirrorX){
-                                ctx.lineTo(view.mirrorX - (view.inside ? 10 : 0) + 1, view.y1);
+                                ctx.lineTo(view.mirrorX - (view.inside ? view.arrowWidth : 0) + 1, view.y1);
                             } else {
-                                ctx.lineTo(view.x1 - (view.inside ? 10 : 0) + 1, view.y1);
+                                ctx.lineTo(view.x1 - (view.inside ? view.arrowWidth : 0) + 1, view.y1);
                             }
 
                         } else {
-                            ctx.lineTo(view.x2 - (view.inside ? 10 : 0) + 1, view.y1);
+                            ctx.lineTo(view.x2 - (view.inside ? view.arrowWidth : 0) + 1, view.y1);
                         }
                         ctx.stroke()
                         ctx.restore()
@@ -400,7 +373,7 @@ module.exports = function(Chart) {
                     // Canvas setup
                     ctx.beginPath();
                     //console.log(view.clip.x1, view.clip.y1, view.clip.x2, view.clip.y1, view.x1, view.y1)
-                    ctx.rect(view.clip.x1, view.clip.y1 - 11, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
+                    ctx.rect(view.clip.x1, view.clip.y1 - view.arrowWidth, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1);
                     ctx.clip();
 
                     ctx.lineWidth = view.borderWidth;
@@ -414,10 +387,10 @@ module.exports = function(Chart) {
                     // Draw
                     ctx.beginPath();
                     ctx.fillStyle = view.backgroundColor
-                    ctx.moveTo(view.x1, view.y1 + (view.inside ? 11 : 0));
-                    ctx.lineTo(view.x1 + 10, view.y1 - 11 + (view.inside ? 11 : 0));
-                    ctx.lineTo(view.x1 - 10, view.y1 - 11 + (view.inside ? 11 : 0));
-                    ctx.lineTo(view.x1 , view.y1 + (view.inside ? 11 : 0));
+                    ctx.moveTo(view.x1, view.y1 + (view.inside ? view.arrowWidth : 0));
+                    ctx.lineTo(view.x1 + view.arrowWidth, view.y1 - view.arrowWidth + (view.inside ? view.arrowWidth : 0));
+                    ctx.lineTo(view.x1 - view.arrowWidth, view.y1 - view.arrowWidth + (view.inside ? view.arrowWidth : 0));
+                    ctx.lineTo(view.x1 , view.y1 + (view.inside ? view.arrowWidth : 0));
                     ctx.fill();
                     ctx.restore();
                 }
@@ -426,17 +399,17 @@ module.exports = function(Chart) {
                     ctx.save();
                     // Canvas setup
                     ctx.beginPath();
-                    ctx.rect(view.clip.x1, view.clip.y1 - 11, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1 + 11);
+                    ctx.rect(view.clip.x1, view.clip.y1 - view.arrowWidth, view.clip.x2 - view.clip.x1, view.clip.y2 - view.clip.y1 + view.arrowWidth);
                     ctx.clip();
 
                     // Draw
                     ctx.beginPath();
                     ctx.fillStyle = view.backgroundColor
 
-                    ctx.moveTo(view.x1, view.y2 - (view.inside ? 11 : 0));
-                    ctx.lineTo(view.x1 - 10, view.y2 + 11 - (view.inside ? 11 : 0));
-                    ctx.lineTo(view.x1 + 10, view.y2 + 11 - (view.inside ? 11 : 0));
-                    ctx.lineTo(view.x1, view.y2 - (view.inside ? 11 : 0));
+                    ctx.moveTo(view.x1, view.y2 - (view.inside ? view.arrowWidth : 0));
+                    ctx.lineTo(view.x1 - view.arrowWidth, view.y2 + view.arrowWidth - (view.inside ? view.arrowWidth : 0));
+                    ctx.lineTo(view.x1 + view.arrowWidth, view.y2 + view.arrowWidth - (view.inside ? view.arrowWidth : 0));
+                    ctx.lineTo(view.x1, view.y2 - (view.inside ? view.arrowWidth : 0));
                     ctx.fill();
                     ctx.restore();
                 }
@@ -469,11 +442,21 @@ module.exports = function(Chart) {
                     view.labelFontFamily
                 );
                 ctx.fillStyle = view.labelFontColor;
-                ctx.textAlign = 'center';
+                ctx.textAlign = view.labelTextAlign;
                 ctx.textBaseline = 'middle';
+
+                let x
+                if(view.labelTextAlign === 'left'){
+                    x = view.labelX
+                } else if(view.labelTextAlign === 'right'){
+                    x = view.labelX + view.labelWidth
+                } else {
+                    x = view.labelX + (view.labelWidth / 2)
+                }
+
                 ctx.fillText(
                     view.labelContent,
-                    view.labelX + (view.labelWidth / 2),
+                    x,
                     view.labelY + (view.labelHeight / 2)
                 );
                 ctx.restore();
