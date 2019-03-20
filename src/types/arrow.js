@@ -90,6 +90,10 @@ module.exports = function(Chart) {
 		setDataLimits: function() {
 			var model = this._model;
 			var options = this.options;
+			var chartInstance = this.chartInstance;
+			var chartArea = chartInstance.chartArea;
+			var xScale = chartInstance.scales[options.xScaleID];
+			var yScale = chartInstance.scales[options.yScaleID];
 
 			// Set the data range for this annotation
 			model.ranges = {};
@@ -97,6 +101,29 @@ module.exports = function(Chart) {
 				min: options.value,
 				max: options.endValue || options.value
 			};
+
+			var min = 0;
+			var max = 0;
+
+			if (xScale) {
+				min = helpers.isValid(options.xMin) ? options.xMin : xScale.getValueForPixel(chartArea.left);
+				max = helpers.isValid(options.xMax) ? options.xMax : xScale.getValueForPixel(chartArea.right);
+
+				model.ranges[options.xScaleID] = {
+					min: Math.min(min, max),
+					max: Math.max(min, max)
+				};
+			}
+
+			if (yScale) {
+				min = helpers.isValid(options.yMin) ? options.yMin : yScale.getValueForPixel(chartArea.bottom);
+				max = helpers.isValid(options.yMax) ? options.yMax : yScale.getValueForPixel(chartArea.top);
+
+				model.ranges[options.yScaleID] = {
+					min: Math.min(min, max),
+					max: Math.max(min, max)
+				};
+			}
 		},
 		configure: function() {
 			var model = this._model;
@@ -104,7 +131,19 @@ module.exports = function(Chart) {
 			var chartInstance = this.chartInstance;
 			var ctx = chartInstance.chart.ctx;
 
+			var xScale = chartInstance.scales[options.xScaleID];
+			var yScale = chartInstance.scales[options.yScaleID];
+
 			var scale = chartInstance.scales[options.scaleID];
+			if(!scale){
+				if(options.mode === horizontalKeyword){
+					scale = yScale
+				} else {
+					scale = xScale
+				}
+			}
+
+
 			var pixel, endPixel;
 			if (scale) {
 				pixel = helpers.isValid(options.value) ? scale.getPixelForValue(options.value, options.value.index) : NaN;
@@ -153,28 +192,79 @@ module.exports = function(Chart) {
 			model.borderDash = options.borderDash || [];
 			model.borderDashOffset = options.borderDashOffset || 0;
 			model.mirror = options.mirror || false
+			model.mirrorPoint = options.mirrorPoint || null
 			model.align = options.align || 'left'
 			model.padding = options.padding ? options.padding * (model.align === 'left' ? -1 : 1) : 0
+			model.yPadding = options.yPadding ? options.yPadding * (model.align === 'top' ? -1 : 1) : 0
 			model.inside = options.inside || false
+			model.onPoint = options.onPoint || false
+			model.connectMirror = options.connectMirror || false
 
 			model.clip = {
 				x1: chartArea.left + model.padding,
 				x2: chartArea.right + model.padding,
-				y1: chartArea.top,
+				y1: 0,
 				y2: chartArea.bottom
 			};
+//console.log(model)
+
 
 			if (this.options.mode === horizontalKeyword) {
 				model.x1 = chartArea.left + model.padding;
 				model.x2 = chartArea.right + model.padding;
-				model.y1 = pixel;
-				model.y2 = endPixel;
+				model.y1 = pixel + model.yPadding;
+				model.y2 = endPixel + model.yPadding;
+				if(model.onPoint){
+					//console.log(yScale.getPixelForValue(options.onPoint))
+					model.x1 += xScale.getPixelForValue(options.onPoint) - 5
+					if(model.mirrorPoint){
+						model.mirrorX = xScale.getPixelForValue(model.mirrorPoint)
+						console.log(model.mirrorX)
+					}
+					//model.x2 += xScale.getPixelForValue(options.onPoint) - 5
+				}
+
 			} else {
-				model.y1 = chartArea.top;
-				model.y2 = chartArea.bottom;
+				model.y1 = chartArea.top + model.yPadding;
+				model.y2 = chartArea.bottom + model.yPadding;
 				model.x1 = pixel + model.padding;
 				model.x2 = endPixel + model.padding;
+				if(model.onPoint){
+					//console.log(yScale.getPixelForValue(options.onPoint))
+					model.y1 += yScale.getPixelForValue(options.onPoint) - 5
+					if(model.mirrorDistance){
+						model.mirrorY = yScale.getPixelForValue(model.mirrorPoint)
+					}
+					//model.y2 += yScale.getPixelForValue(options.onPoint) - 5
+				}
 			}
+
+			var left = chartArea.left;
+			var top = chartArea.top;
+			var right = chartArea.right;
+			var bottom = chartArea.bottom;
+
+			var min, max;
+
+			if (xScale) {
+				min = helpers.isValid(options.xMin) ? xScale.getPixelForValue(options.xMin) : chartArea.left;
+				max = helpers.isValid(options.xMax) ? xScale.getPixelForValue(options.xMax) : chartArea.right;
+				left = Math.min(min, max);
+				right = Math.max(min, max);
+			}
+
+			if (yScale) {
+				min = helpers.isValid(options.yMin) ? yScale.getPixelForValue(options.yMin) : chartArea.bottom;
+				max = helpers.isValid(options.yMax) ? yScale.getPixelForValue(options.yMax) : chartArea.top;
+				top = Math.min(min, max);
+				bottom = Math.max(min, max);
+			}
+
+			// Ensure model has rect coordinates
+			model.left = left;
+			model.top = top;
+			model.right = right;
+			model.bottom = bottom;
 		},
 		inRange: function(mouseX, mouseY) {
 			var model = this._model;
@@ -254,20 +344,54 @@ module.exports = function(Chart) {
 
 					ctx.save();
 					// Canvas setup
-					ctx.beginPath();
-					ctx.rect(view.clip.x2 - 11, view.clip.y1, view.clip.x2 - view.clip.x1 + 11, view.clip.y2 - view.clip.y1);
-					ctx.clip();
+
 
 					// Draw
 					ctx.beginPath();
 					ctx.fillStyle = view.backgroundColor
+					if(view.onPoint){
+						if(view.mirrorX){
+							ctx.moveTo(view.mirrorX - (view.inside ? 10 : 0), view.y1);
+							ctx.lineTo(view.mirrorX + 10 - (view.inside ? 10 : 0), view.y1 - 10);
+							ctx.lineTo(view.mirrorX + 10 - (view.inside ? 10 : 0), view.y1 + 10);
+							ctx.lineTo(view.mirrorX  - (view.inside ? 10 : 0), view.y1 );
+						} else {
+							ctx.moveTo(view.x1 - (view.inside ? 10 : 0), view.y1);
+							ctx.lineTo(view.x1 + 10 - (view.inside ? 10 : 0), view.y1 - 10);
+							ctx.lineTo(view.x1 + 10 - (view.inside ? 10 : 0), view.y1 + 10);
+							ctx.lineTo(view.x1  - (view.inside ? 10 : 0), view.y1 );
+						}
 
-					ctx.moveTo(view.x2 - (view.inside ? 10 : 0), view.y1);
-					ctx.lineTo(view.x2 + 10 - (view.inside ? 10 : 0), view.y1 - 10);
-					ctx.lineTo(view.x2 + 10 - (view.inside ? 10 : 0), view.y1 + 10);
-					ctx.lineTo(view.x2  - (view.inside ? 10 : 0), view.y1 );
+					} else {
+						ctx.moveTo(view.x2 - (view.inside ? 10 : 0), view.y1);
+						ctx.lineTo(view.x2 + 10 - (view.inside ? 10 : 0), view.y1 - 10);
+						ctx.lineTo(view.x2 + 10 - (view.inside ? 10 : 0), view.y1 + 10);
+						ctx.lineTo(view.x2  - (view.inside ? 10 : 0), view.y1 );
+					}
+
 					ctx.fill();
 					ctx.restore();
+
+
+					if(view.connectMirror){
+						ctx.save();
+						ctx.strokeStyle = view.borderColor
+						ctx.strokeWidth = view.borderWidth
+						ctx.beginPath();
+						ctx.moveTo(view.x1 + (view.inside ? 10 : 0) - 1, view.y1)
+						if(view.onPoint){
+							if(view.mirrorX){
+								ctx.lineTo(view.mirrorX - (view.inside ? 10 : 0) + 1, view.y1);
+							} else {
+								ctx.lineTo(view.x1 - (view.inside ? 10 : 0) + 1, view.y1);
+							}
+
+						} else {
+							ctx.lineTo(view.x2 - (view.inside ? 10 : 0) + 1, view.y1);
+						}
+						ctx.stroke()
+						ctx.restore()
+					}
 				}
 			} else {
 				if(view.align === 'top'){
