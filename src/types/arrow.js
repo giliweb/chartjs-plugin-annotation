@@ -172,6 +172,7 @@ module.exports = function(Chart) {
             model.onPoint = options.onPoint || false
             model.connectMirror = options.connectMirror || false
             model.arrowWidth = options.arrowWidth || 10
+            model.arrowHeight = options.arrowHeight || 10
 
             model.clip = {
                 x1: chartArea.left + model.padding,
@@ -302,8 +303,8 @@ module.exports = function(Chart) {
                     ctx.beginPath();
                     ctx.fillStyle = view.backgroundColor
                     ctx.moveTo(view.x1 + (view.inside ? view.arrowWidth : 0), view.y1);
-                    ctx.lineTo(view.x1 - view.arrowWidth + ( view.inside ? view.arrowWidth : 0), view.y1 - view.arrowWidth);
-                    ctx.lineTo(view.x1 - view.arrowWidth + (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowWidth);
+                    ctx.lineTo(view.x1 - view.arrowWidth + ( view.inside ? view.arrowWidth : 0), view.y1 - view.arrowHeight);
+                    ctx.lineTo(view.x1 - view.arrowWidth + (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowHeight);
                     ctx.lineTo(view.x1 + (view.inside ? view.arrowWidth : 0), view.y1 );
 
                     ctx.fill();
@@ -325,20 +326,20 @@ module.exports = function(Chart) {
                     if(view.onPoint){
                         if(view.mirrorX){
                             ctx.moveTo(view.mirrorX - (view.inside ? view.arrowWidth : 0), view.y1);
-                            ctx.lineTo(view.mirrorX + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 - view.arrowWidth);
-                            ctx.lineTo(view.mirrorX + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowWidth);
+                            ctx.lineTo(view.mirrorX + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 - view.arrowHeight);
+                            ctx.lineTo(view.mirrorX + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowHeight);
                             ctx.lineTo(view.mirrorX  - (view.inside ? view.arrowWidth : 0), view.y1 );
                         } else {
                             ctx.moveTo(view.x1 - (view.inside ? view.arrowWidth : 0), view.y1);
-                            ctx.lineTo(view.x1 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 - view.arrowWidth);
-                            ctx.lineTo(view.x1 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowWidth);
+                            ctx.lineTo(view.x1 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 - view.arrowHeight);
+                            ctx.lineTo(view.x1 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowHeight);
                             ctx.lineTo(view.x1  - (view.inside ? view.arrowWidth : 0), view.y1 );
                         }
 
                     } else {
                         ctx.moveTo(view.x2 - (view.inside ? view.arrowWidth : 0), view.y1);
-                        ctx.lineTo(view.x2 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 - view.arrowWidth);
-                        ctx.lineTo(view.x2 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowWidth);
+                        ctx.lineTo(view.x2 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 - view.arrowHeight);
+                        ctx.lineTo(view.x2 + view.arrowWidth - (view.inside ? view.arrowWidth : 0), view.y1 + view.arrowHeight);
                         ctx.lineTo(view.x2  - (view.inside ? view.arrowWidth : 0), view.y1 );
                     }
 
