@@ -139,6 +139,7 @@ module.exports = function(Chart) {
 			model.labelEnabled = options.label.enabled;
 			model.labelContent = options.label.content;
 			model.labelTextAlign = options.label.textAlign || 'center'
+			model.labelShadow = options.label.shadow || false
 			var lines = model.labelContent ? model.labelContent.split('\n') : []
 
 			ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
@@ -303,12 +304,29 @@ module.exports = function(Chart) {
 					x = view.labelX + (view.labelWidth / 2)
 				}
 
-				for (var i = 0; i<lines.length; i++)
+
+
+
+
+				for (var i = 0; i<lines.length; i++) {
+
+					if(view.labelShadow){
+						ctx.shadowColor="white";
+						ctx.shadowBlur = 2;
+						ctx.strokeStyle = 'white'
+						ctx.borderWidth = 3
+
+
+					}
+
 					ctx.fillText(
 						lines[i],
 						x,
 						view.labelY + (view.labelHeight / 2) + (i * view.labelFontSize)
 					);
+					ctx.shadowBlur=0;
+
+				}
 
 
 			}
