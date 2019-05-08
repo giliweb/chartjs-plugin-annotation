@@ -150,7 +150,7 @@ module.exports = function(Chart) {
 
 			var labelPosition = calculateLabelPosition(model, textWidth, textHeight, model.labelXPadding, model.labelYPadding);
 			model.labelX = labelPosition.x - model.labelXPadding;
-			model.labelY = labelPosition.y - model.labelYPadding;
+			model.labelY = Math.max(labelPosition.y - model.labelYPadding, chartArea.top + 10);
 			model.labelWidth = textWidth + (2 * model.labelXPadding);
 			model.labelHeight = textHeight + (2 * model.labelYPadding);
 
