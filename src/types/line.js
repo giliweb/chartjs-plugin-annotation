@@ -140,6 +140,8 @@ module.exports = function(Chart) {
 			model.labelContent = options.label.content;
 			model.labelTextAlign = options.label.textAlign || 'center'
 			model.labelShadow = options.label.shadow || false
+			model.labelStrokeColor = options.label.strokeColor || 'white'
+			model.labelStrokeWidth = options.label.strokeWidth || 0
 			var lines = model.labelContent ? model.labelContent.split('\n') : []
 
 			ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
@@ -309,6 +311,17 @@ module.exports = function(Chart) {
 
 
 				for (var i = 0; i<lines.length; i++) {
+
+
+
+					if(view.labelStrokeWidth > 0){
+						ctx.strokeStyle = view.labelStrokeColor
+						ctx.lineWidth = view.labelStrokeWidth;
+						ctx.strokeText(lines[i],
+							x,
+							view.labelY + (view.labelHeight / 2) + (i * view.labelFontSize));
+
+					}
 
 					if(view.labelShadow){
 						ctx.shadowColor="white";
