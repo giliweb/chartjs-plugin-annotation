@@ -81,6 +81,7 @@ module.exports = function(Chart) {
 			model.labelYAdjust = options.label.yAdjust;
 			model.labelEnabled = options.label.enabled;
 			model.labelContent = options.label.content;
+			model.labelShadowColor = options.label.shadowColor || 'transparent';
 
 			ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
 			var textWidth = model.labelContent ? ctx.measureText(model.labelContent.split('\n')[0]).width : 0;
@@ -199,14 +200,14 @@ module.exports = function(Chart) {
 
 				ctx.fillStyle = view.labelBackgroundColor;
 				// Draw the tooltip
-				ctx.shadowColor = 'black';
+				ctx.shadowColor = view.labelShadowColor;
 				ctx.shadowBlur = 5;
 				chartHelpers.drawRoundedRectangle(
 					ctx,
 					view.labelX, // x
 					view.labelY, // y
 					view.labelWidth, // width
-					(view.labelHeight), // height
+					(view.labelHeight) + 4, // height
 					view.labelCornerRadius // radius
 				);
 				ctx.fill();
