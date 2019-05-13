@@ -82,6 +82,8 @@ module.exports = function(Chart) {
 			model.labelEnabled = options.label.enabled;
 			model.labelContent = options.label.content;
 			model.labelShadowColor = options.label.shadowColor || 'transparent';
+			model.labelBoxBorderWidth = options.label.boxBorderWidth || 0;
+			model.labelBoxBorderColor = options.label.boxBorderColor || 'black';
 
 			ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
 			var textWidth = model.labelContent ? ctx.measureText(model.labelContent.split('\n')[0]).width : 0;
@@ -168,6 +170,47 @@ module.exports = function(Chart) {
 		getArea: function() {
 			return this.getWidth() * this.getHeight();
 		},
+
+		roundRect: function(ctx, x, y, width, height, radius, fill, stroke, strokeColor) {
+			if (typeof stroke == 'undefined') {
+				stroke = true;
+			}
+			if (typeof radius === 'undefined') {
+				radius = 5;
+			}
+			if (typeof strokeColor === 'undefined') {
+				strokeColor = 'black';
+			}
+			if (typeof radius === 'number') {
+				radius = {tl: radius, tr: radius, br: radius, bl: radius};
+			} else {
+				var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+				for (var side in defaultRadius) {
+					radius[side] = radius[side] || defaultRadius[side];
+				}
+			}
+			ctx.beginPath();
+
+			ctx.moveTo(x + radius.tl, y);
+			ctx.lineTo(x + width - radius.tr, y);
+			ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+			ctx.lineTo(x + width, y + height - radius.br);
+			ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+			ctx.lineTo(x + radius.bl, y + height);
+			ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+			ctx.lineTo(x, y + radius.tl);
+			ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+			ctx.closePath();
+			if (fill) {
+				ctx.fill();
+			}
+			if (stroke) {
+				ctx.strokeStyle = strokeColor
+				ctx.stroke();
+			}
+
+		},
+
 		draw: function() {
 			var view = this._view;
 			var ctx = this.chartInstance.chart.ctx;
@@ -202,14 +245,41 @@ module.exports = function(Chart) {
 				// Draw the tooltip
 				ctx.shadowColor = view.labelShadowColor;
 				ctx.shadowBlur = 5;
-				chartHelpers.drawRoundedRectangle(
+				if(view.labelBoxBorderWidth > 0 && !isNaN(view.labelX) && !isNaN(view.labelY)){
+					// ctx.fillStyle = view.labelBoxBorderColor
+					// // ctx.lineWidth = view.labelBoxBorderWidth
+					// chartHelpers.drawRoundedRectangle(
+					// 	ctx,
+					// 	view.labelX - view.labelBoxBorderWidth, // x
+					// 	view.labelY - view.labelBoxBorderWidth, // y
+					// 	view.labelWidth + view.labelBoxBorderWidth, // width
+					// 	(view.labelHeight) + 4 + view.labelBoxBorderWidth, // height
+					// 	view.labelCornerRadius // radius
+					// );
+					// ctx.fillStyle = view.backgroundColor;
+				}
+				// chartHelpers.drawRoundedRectangle(
+				// 	ctx,
+				// 	view.labelX, // x
+				// 	view.labelY, // y
+				// 	view.labelWidth, // width
+				// 	(view.labelHeight) + 4, // height
+				// 	view.labelCornerRadius // radius
+				// );
+				this.roundRect(
 					ctx,
 					view.labelX, // x
 					view.labelY, // y
 					view.labelWidth, // width
 					(view.labelHeight) + 4, // height
-					view.labelCornerRadius // radius
-				);
+					view.labelCornerRadius, // radius
+					true,
+					view.labelBoxBorderWidth,
+					view.labelBoxBorderColor
+				)
+
+				// console.log(view.labelBoxBorderWidth)
+
 				ctx.fill();
 				ctx.shadowColor = 'transparent'
 				// Draw the text

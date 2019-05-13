@@ -144,6 +144,8 @@ module.exports = function(Chart) {
 			model.labelBorderColor = options.label.borderColor || 'black'
 			model.labelStrokeColor = options.label.strokeColor || 'white'
 			model.labelStrokeWidth = options.label.strokeWidth || 0
+			model.labelBoxBorderWidth = options.label.boxBorderWidth || 0;
+			model.labelBoxBorderColor = options.label.boxBorderColor || 'black';
 			var lines = model.labelContent ? model.labelContent.split('\n') : []
 
 			ctx.font = chartHelpers.fontString(model.labelFontSize, model.labelFontStyle, model.labelFontFamily);
@@ -217,6 +219,45 @@ module.exports = function(Chart) {
 		getArea: function() {
 			return Math.sqrt(Math.pow(this.getWidth(), 2) + Math.pow(this.getHeight(), 2));
 		},
+		roundRect: function(ctx, x, y, width, height, radius, fill, stroke, strokeColor) {
+			if (typeof stroke == 'undefined') {
+				stroke = true;
+			}
+			if (typeof radius === 'undefined') {
+				radius = 5;
+			}
+			if (typeof strokeColor === 'undefined') {
+				strokeColor = 'black';
+			}
+			if (typeof radius === 'number') {
+				radius = {tl: radius, tr: radius, br: radius, bl: radius};
+			} else {
+				var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+				for (var side in defaultRadius) {
+					radius[side] = radius[side] || defaultRadius[side];
+				}
+			}
+			ctx.beginPath();
+
+			ctx.moveTo(x + radius.tl, y);
+			ctx.lineTo(x + width - radius.tr, y);
+			ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+			ctx.lineTo(x + width, y + height - radius.br);
+			ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+			ctx.lineTo(x + radius.bl, y + height);
+			ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+			ctx.lineTo(x, y + radius.tl);
+			ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+			ctx.closePath();
+			if (fill) {
+				ctx.fill();
+			}
+			if (stroke) {
+				ctx.strokeStyle = strokeColor
+				ctx.stroke();
+			}
+
+		},
 		draw: function() {
 			var view = this._view;
 			var ctx = this.chartInstance.chart.ctx;
@@ -245,7 +286,7 @@ module.exports = function(Chart) {
 			ctx.moveTo(view.x1, view.y1);
 			ctx.lineTo(view.x2, view.y2);
 			ctx.stroke();
-
+			ctx.setLineDash([])
 			if(view.shadow){
 				ctx.strokeStyle = view.shadowColor
 				ctx.lineWidth = view.shadowWidth;
@@ -279,15 +320,27 @@ module.exports = function(Chart) {
 
 				ctx.fillStyle = view.labelBackgroundColor;
 				// Draw the tooltip
-				chartHelpers.drawRoundedRectangle(
+				// chartHelpers.drawRoundedRectangle(
+				// 	ctx,
+				// 	view.labelX, // x
+				// 	view.labelY, // y
+				// 	view.labelWidth, // width
+				// 	view.labelHeight, // height
+				// 	view.labelCornerRadius // radius
+				// );
+
+				this.roundRect(
 					ctx,
 					view.labelX, // x
 					view.labelY, // y
 					view.labelWidth, // width
 					view.labelHeight, // height
-					view.labelCornerRadius // radius
-				);
-				ctx.fill();
+					view.labelCornerRadius, // radius
+					true,
+					view.labelBoxBorderWidth,
+					view.labelBoxBorderColor
+				)
+				// ctx.fill();
 
 				// Draw the text
 				ctx.font = chartHelpers.fontString(
