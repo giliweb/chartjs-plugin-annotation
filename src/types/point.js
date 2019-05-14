@@ -70,7 +70,6 @@ module.exports = function(Chart) {
                 x = helpers.isValid(options.xValue) ? xScale.getPixelForValue(options.xValue) : NaN;
                 y = helpers.isValid(options.yValue) ? yScale.getPixelForValue(options.yValue) : NaN;
             }
-            // console.log(options.xValue, options.yValue, x, y)
             if (isNaN(x) || isNaN(y)) {
                 return;
             }
@@ -117,7 +116,6 @@ module.exports = function(Chart) {
                             y2: y
                         }
                     ]
-                    console.log(model.horizontalLine)
                 }
 
             }
@@ -145,7 +143,6 @@ module.exports = function(Chart) {
                             y2: chartArea.bottom
                         }
                     ]
-                    console.log(model.horizontalLine)
                 }
 
             }
@@ -193,10 +190,8 @@ module.exports = function(Chart) {
 
         },
         draw: function() {
-            console.log(Chart.helpers)
             var view = this._view;
             var ctx = this.chartInstance.chart.ctx;
-            // console.log(this)
             ctx.save();
             ctx.strokeStyle = view.borderColor
             ctx.lineWidth = view.borderWidth;
@@ -259,7 +254,6 @@ module.exports = function(Chart) {
 
 
                 Chart.helpers.each(view.labelLines, function(line, i){
-                    console.log(line, view, ctx.fillStyle)
                     ctx.fillText(
                         line,
                         x,
