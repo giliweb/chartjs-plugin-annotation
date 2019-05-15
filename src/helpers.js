@@ -100,7 +100,7 @@ module.exports = function(Chart) {
 
 	function getScaleLimits(scaleId, annotations, scaleMin, scaleMax) {
 		var ranges = annotations.filter(function(annotation) {
-			return !!annotation._model.ranges[scaleId];
+			return !!annotation._model.ranges && !!annotation._model.ranges[scaleId];
 		}).map(function(annotation) {
 			return annotation._model.ranges[scaleId];
 		});
