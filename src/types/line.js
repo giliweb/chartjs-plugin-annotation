@@ -167,6 +167,7 @@ module.exports = function(Chart) {
 			model.shadowWidth = options.shadowWidth || 1
 			model.shadowColor = options.shadowColor || '#ffffff'
 
+
 			// clip annotations to the chart area
 			model.clip = {
 				x1: chartArea.left - model.extend[0],
@@ -176,16 +177,51 @@ module.exports = function(Chart) {
 			};
 
 			if (this.options.mode === horizontalKeyword) {
-				model.x1 = chartArea.left - model.extend[0];
-				model.x2 = chartArea.right + model.extend[1];
+				if(this.options.min && this.options.secondaryScale){
+					var secondaryScale = chartInstance.scales[this.options.secondaryScale];
+					if (secondaryScale) {
+						model.x1 = helpers.isValid(this.options.min) ? secondaryScale.getPixelForValue(this.options.min) : NaN;
+					}
+				} else {
+					model.x1 = chartArea.left;
+				}
+
+				if(this.options.max && this.options.secondaryScale){
+					var secondaryScale = chartInstance.scales[this.options.secondaryScale];
+					if (secondaryScale) {
+						model.x2 = helpers.isValid(this.options.max) ? secondaryScale.getPixelForValue(this.options.max) : NaN;
+					}
+				} else {
+					model.x2 = chartArea.right;
+				}
 				model.y1 = pixel;
 				model.y2 = endPixel;
 			} else {
-				model.y1 = chartArea.top;
-				model.y2 = chartArea.bottom;
+				if(this.options.min && this.options.secondaryScale){
+					var secondaryScale = chartInstance.scales[this.options.secondaryScale];
+					if (secondaryScale) {
+						model.y1 = helpers.isValid(this.options.min) ? secondaryScale.getPixelForValue(this.options.min) : NaN;
+					}
+				} else {
+					model.y1 = chartArea.top;
+				}
+
+				if(this.options.max && this.options.secondaryScale){
+					var secondaryScale = chartInstance.scales[this.options.secondaryScale];
+					if (secondaryScale) {
+						model.y2 = helpers.isValid(this.options.max) ? secondaryScale.getPixelForValue(this.options.max) : NaN;
+					}
+				} else {
+					model.y2 = chartArea.bottom;
+				}
+
+
 				model.x1 = pixel;
 				model.x2 = endPixel;
+				console.log(model)
 			}
+
+
 		},
 		inRange: function(mouseX, mouseY) {
 			var model = this._model;
