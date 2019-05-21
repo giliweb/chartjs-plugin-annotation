@@ -88,9 +88,11 @@ module.exports = function(Chart) {
             model.drawVerticalLine = options.drawVerticalLine || false
             model.drawVerticalLineOverPoint = options.drawVerticalLineOverPoint || false
             model.drawHorizontalLineOverPoint = options.drawHorizontalLineOverPoint || false
+            model.xPadding = options.xPadding || 0
+            model.yPadding = options.yPadding || 0
 
-            model.x = x;
-            model.y = y;
+            model.x = x - model.xPadding;
+            model.y = y - model.yPadding;
 
 
             if(model.drawHorizontalLine){
@@ -149,8 +151,9 @@ module.exports = function(Chart) {
 
 
 
+            model.labelEnabled = options.label.enabled || false
             // Figure out the label:
-            if(options.label){
+            if(model.labelEnabled){
                 model.labelBackgroundColor = options.label.backgroundColor || 'white';
                 model.labelFontFamily = options.label.fontFamily || 'arial';
                 model.labelFontSize = options.label.fontSize || '12px';
