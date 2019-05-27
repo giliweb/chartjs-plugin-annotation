@@ -175,10 +175,10 @@ module.exports = function(Chart) {
 				y1: chartArea.top,
 				y2: chartArea.bottom
 			};
-
+			var secondaryScale
 			if (this.options.mode === horizontalKeyword) {
 				if(this.options.min && this.options.secondaryScale){
-					var secondaryScale = chartInstance.scales[this.options.secondaryScale];
+					secondaryScale = chartInstance.scales[this.options.secondaryScale];
 					if (secondaryScale) {
 						model.x1 = helpers.isValid(this.options.min) ? secondaryScale.getPixelForValue(this.options.min) : NaN;
 					}
@@ -187,7 +187,7 @@ module.exports = function(Chart) {
 				}
 
 				if(this.options.max && this.options.secondaryScale){
-					var secondaryScale = chartInstance.scales[this.options.secondaryScale];
+					secondaryScale = chartInstance.scales[this.options.secondaryScale];
 					if (secondaryScale) {
 						model.x2 = helpers.isValid(this.options.max) ? secondaryScale.getPixelForValue(this.options.max) : NaN;
 					}
@@ -198,7 +198,7 @@ module.exports = function(Chart) {
 				model.y2 = endPixel;
 			} else {
 				if(this.options.min && this.options.secondaryScale){
-					var secondaryScale = chartInstance.scales[this.options.secondaryScale];
+					secondaryScale = chartInstance.scales[this.options.secondaryScale];
 					if (secondaryScale) {
 						model.y1 = helpers.isValid(this.options.min) ? secondaryScale.getPixelForValue(this.options.min) : NaN;
 					}
@@ -207,7 +207,7 @@ module.exports = function(Chart) {
 				}
 
 				if(this.options.max && this.options.secondaryScale){
-					var secondaryScale = chartInstance.scales[this.options.secondaryScale];
+					secondaryScale = chartInstance.scales[this.options.secondaryScale];
 					if (secondaryScale) {
 						model.y2 = helpers.isValid(this.options.max) ? secondaryScale.getPixelForValue(this.options.max) : NaN;
 					}
@@ -218,7 +218,6 @@ module.exports = function(Chart) {
 
 				model.x1 = pixel;
 				model.x2 = endPixel;
-				console.log(model)
 			}
 
 
