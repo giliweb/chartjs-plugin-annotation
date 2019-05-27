@@ -5,9 +5,7 @@ module.exports = function(Chart) {
     var helpers = require('../helpers.js')(Chart);
     /* eslint-enable global-require */
 
-    function calculateLabelPosition(view, width, height, padWidth, padHeight) {
-
-
+    function calculateLabelPosition(chartArea, view, width, height, padWidth, padHeight) {
         var line = view.line;
         var ret = {};
         var xa = 0;
@@ -50,6 +48,10 @@ module.exports = function(Chart) {
             default:
                 ret.x = ((view.x - width) / 2) + view.labelXAdjust;
                 ret.y = ((view.y - height) / 2) + view.labelYAdjust;
+        }
+
+        if(ret.x + width > chartArea.right){
+            ret.x = view.x - width - padWidth - view.labelXAdjust
         }
 
         return ret;
@@ -182,7 +184,7 @@ module.exports = function(Chart) {
                 var textWidth = model.labelContent ? ctx.measureText(model.labelLines[0]).width : 0;
                 var textHeight = ctx.measureText('M').width;
 
-                var labelPosition = calculateLabelPosition(model, textWidth, textHeight, model.labelXPadding, model.labelYPadding);
+                var labelPosition = calculateLabelPosition(chartArea, model, textWidth, textHeight, model.labelXPadding, model.labelYPadding);
                 model.labelX = labelPosition.x - model.labelXPadding;
                 model.labelY = Math.max(labelPosition.y - model.labelYPadding, chartArea.top + 10);
                 model.labelWidth = textWidth + (2 * model.labelXPadding);
