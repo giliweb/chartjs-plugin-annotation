@@ -190,7 +190,7 @@ module.exports = function(Chart) {
                 model.y2 = endPixel + model.yPadding;
                 if(model.onPoint){
                     //console.log(yScale.getPixelForValue(options.onPoint))
-                    model.x1 += xScale.getPixelForValue(options.onPoint) - 5
+                    model.x1 += xScale.getPixelForValue(options.onPoint) - 63
                     if(model.mirrorPoint){
                         model.mirrorX = xScale.getPixelForValue(model.mirrorPoint)
                         //console.log(model.mirrorX)
